@@ -14,16 +14,15 @@ connection.connect(function (err) {
 });
 
 
-// view all employees with there department and role, joining tables 
-viewAllEmployee() {
-    return this.connection.query("SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name   FROM employee", function (err, res) {
-
-
-    });
+// find all employees with there department and role, joining tables 
+findAllEmployees() {
+    return this.connection.query(
+        "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id;"
+    );
 }
 
 // view all possible managers
-viewAllManagers(employeeID){
+findAllManagers(employeeID){
     return this.connection.query("SELECT id, first_name, last_name FROM employee WHERE id = ?",
         employeeID
     );
@@ -50,6 +49,12 @@ deleteEmployee(employeeId) {
         employeeId
     );
 }
+//find all departments // Find all departments, join with employees 
+findAllDepartments() {
+    return this.connection.query(
+        "SELECT department.id, department.name, FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id GROUP BY department.id, department.name;"
+    );
+}
 
 // Create a new department
 createDepartment(department) {
@@ -66,6 +71,12 @@ deleteDepartment(departmentID){
 createRole(role) {
     return this.connection.query("INSERT INTO role SET ?",
         role
+    );
+}
+//find all roles, need to join with department to see department name 
+findAllRoles() {
+    return this.connection.query(
+        "SELECT role.id, role.title, department.name AS department, role.salary FROM role LEFT JOIN department on role.department_id = department.id;"
     );
 }
 

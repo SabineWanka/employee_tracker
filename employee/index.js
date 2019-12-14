@@ -238,45 +238,28 @@ async function updateEmployeeRole() {
   loadMainPrompts();
 }
 
-async function updateEmployeeManager() {
-  const employees = await db.findAllEmployees();
+const managers = await db.findAllPossibleManagers(employeeId);
 
-  const employeeChoices = employees.map(({ id, first_name, last_name }) => ({
-    name: `${first_name} ${last_name}`,
-    value: id
-  }));
+const managerChoices = managers.map(({ id, first_name, last_name }) => ({
+  name: `${first_name} ${last_name}`,
+  value: id
+}));
 
-  const { employeeId } = await prompt([
-    {
-      type: "list",
-      name: "employeeId",
-      message: "Which employee's manager do you want to update?",
-      choices: employeeChoices
-    }
-  ]);
+const { managerId } = await prompt([
+  {
+    type: "list",
+    name: "managerId",
+    message:
+      "Which employee do you want to set as manager for the selected employee?",
+    choices: managerChoices
+  }
+]);
 
-  const managers = await db.findAllPossibleManagers(employeeId);
+await db.updateEmployeeManager(employeeId, managerId);
 
-  const managerChoices = managers.map(({ id, first_name, last_name }) => ({
-    name: `${first_name} ${last_name}`,
-    value: id
-  }));
+console.log("Updated employee's manager");
 
-  const { managerId } = await prompt([
-    {
-      type: "list",
-      name: "managerId",
-      message:
-        "Which employee do you want to set as manager for the selected employee?",
-      choices: managerChoices
-    }
-  ]);
-
-  await db.updateEmployeeManager(employeeId, managerId);
-
-  console.log("Updated employee's manager");
-
-  loadMainPrompts();
+loadMainPrompts();
 }
 
 async function viewRoles() {
